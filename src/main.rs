@@ -1,75 +1,76 @@
 mod tasks;
+mod storage;
 
-use tasks::{add_task , list_tasks , delete_task};
+use tasks::{add , delete , list , done};
+//Parser from 
+use clap::{Parser, Subcommand };
 
-//import env module to get cli args
-use std::env;
 
+
+#[derive(Parser)]
+#[command(name = "todo" , version , )]
+struct Cli {
+    #[command(subcommand)]
+    command : Commands
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    // Add new task
+    Add {
+        // task descrition
+        task : Vec<String>,
+    },
+
+    // List all the tasks
+    List ,
+    // Delete task by number
+    Delete {
+        // The task number (1-based index)
+        index : usize,
+    },
+    
+    Done {
+        // The task number (1-based index)
+        index : usize,
+    }
+}
 
 
 fn main() {
-    //Get standard input from cli and covert to Vector<String>
-    let command_arguments :Vec<String> =  env::args().collect();
-    if command_arguments.len() < 2{ //if no arguments provided , return 
-        eprintln!("Provide enough arguments");
-        return;
-    }
-
-    //extract command as string slice
-    let command = command_arguments[1].as_str();
+        let cli = Cli::parse();
 
     //match the command
-    match  command {
-        "add" => {
+    match  cli.command {
+        Commands::Add { task } => {
             //  If the task_name is not available return 
-            if command_arguments.len() < 3{
-                println!("Name of the task should be provided")
-            }
-            
-            
-            let task  = command_arguments[2..].join(" ");
-
-            //add the task to the list
-            if let Err(e) = add_task(&task) {
+            let task_desc = task.join(" ");
+            if let Err(e) =  add::run(&task_desc){
                 println!("{}",e);
-                return;
             }
-
-            println!("{} added to TODO list" , task);
         },
-        "list" =>{
+        Commands::List =>{
             //show the tasks in the list
-            if let Err(e) = list_tasks() {
-                print!("Error {}, Thats all folks",e)
+            if let Err(e) = list::run() {
+                println!("Error {}, Thats all folks",e)
             } 
         },
 
-        "delete" => {
+        Commands::Delete { index } => {
             //delete the task with given number
-            let x  = command_arguments[2].parse().unwrap_or(-1);
-            if x==-1 {
-                println!("Enter Valid Index of the task");
+            
+            if let Err(e) = delete::run(index) {
+                println!("Error {} while Deleting Task {}",e ,index);
                 return;
             }
-            if let Err(e) = delete_task(x) {
-                println!("Error {} while Deleting Task {}",e ,x);
-                return;
-            }
-            println!("Deleted Task - {} from TODO List",x);
+            println!("Deleted Task - {} from TODO List",index);
 
         },
-        "help" => {
-            //Show the options / commands available
-            println!("Usage:");
-            println!("  todo_cli add <task description>   # Add a new task");
-            println!("  todo_cli delete <task number>     # Delete task");
-            println!("  todo_cli list                     # List all tasks");
-            println!("  todo_cli help                     # Show this help");
-        },
-        _ => {
-            //if not matched show default instruction for getting help
-            println!("  I dont know what you are saying ");
-            println!("  todo_cli help                     # Show this help");
+        Commands::Done {index} => {
+            if let Err(e) = done::run(index) {
+                println!("An error occured ! {}",e);
+            }
         }
+
     }
 }
