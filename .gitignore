@@ -1,2 +1,15 @@
-/target
-/release/*.txt
+# Ignore Rust build output
+/target/
+
+# Ignore backup files
+*.log
+*.tmp
+*.swp
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# IDE-specific
+.idea/
+.vscode/
