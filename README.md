@@ -43,6 +43,7 @@ cargo build --release
 | `add <task>`     | Add a new task                 | `rust-todo-cli add "Buy groceries"` |
 | `list`           | List all tasks                 | `rust-todo-cli list`                |
 | `delete <index>` | Delete task by index (1-based) | `rust-todo-cli delete 2`            |
+| `done <index>`   | Complete task by index (1-based) | `rust-todo-cli done 2`            |
 
 ---
 
